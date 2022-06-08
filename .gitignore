@@ -9,7 +9,7 @@ __pycache__/
 __pycache__/*.pyc
 *.sqlite3
 media/
-fixtures/
+# fixtures/
 .vscode/
 
 migrations
