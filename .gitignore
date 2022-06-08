@@ -1,0 +1,29 @@
+*.pyc
+*.swp
+*.log
+*.pot
+.idea
+.env
+
+__pycache__/
+__pycache__/*.pyc
+*.sqlite3
+media/
+fixtures/
+.vscode/
+
+migrations
+!migrations/__init__.py
+
+#virtualenv
+venv/
+
+# logs
+logs/
+
+# staticfiles
+staticfiles
+
+node_modules/
+static/package-lock.json
+

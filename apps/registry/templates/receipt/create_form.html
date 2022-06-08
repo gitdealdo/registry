@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+<!-- breadcrumbs -->
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'registry:receipt_list' %}">Registros</a></li>
+<li class="breadcrumb-item">{{title}}</li>
+{% endblock breadcrumb %}
+<!-- main content -->
+{% block content %}
+<h1>{{opts.verbose_name}} | <small class="text-muted">{{title}}</small></h1>
+
+aqui va le formulario
+
+
+<hr>
+
+
+<script>
+    $("select#id_brand").change(function() {
+        const brand = $(this).val();
+        const params = {
+            brand
+        }
+        $.get("{#% url 'car:models_json' %#}", params,
+            function(response, textStatus, jqXHR) {
+                let modelField = $("select#id_model");
+                modelField.html('');
+                $.each(response.results, function(k, item) {
+                    modelField.append(
+                        '<option value="' + item.id + '">' + item.name + '</option>'
+                    );
+                });
+            },
+        );
+    })
+</script>
+{% endblock content %}

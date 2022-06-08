@@ -1,0 +1,6 @@
+# development dependencies go here
+-r base.txt
+# docutils==0.14
+django-extensions==2.1.7
+pygraphviz==1.5
+bpython==0.19

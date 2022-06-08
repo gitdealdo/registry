@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+<!-- breadcrumbs -->
+{% block breadcrumb %}
+<li class="breadcrumb-item">Registros</li>
+{% endblock breadcrumb %}
+<!-- main content -->
+{% block content %}
+<div class="row">
+    <div class="col-md-10">
+        <h1>{{opts.verbose_name_plural}} | <small class="text-muted">{{title}}</small></h1>
+    </div>
+    <div class="col-md-2">
+        <a class="btn btn-primary pull-left" style="margin-top: 1.5em;" href="{% url 'registry:receipt_create' %}" title="Nuevo registro">
+            <i class="fa fa-plus" aria-hidden="true"></i> Nuevo
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 mb-3">
+        <form action="">
+            <div class="input-group">
+                <select class="custom-select" id="f" name="f">
+                    <option value="client__first_name" {% if f == 'client__first_name' %} selected {% endif %}>Nombres</option>
+                    <option value="client__last_name" {% if f == 'client__last_name' %} selected {% endif %}>Apellidos</option>
+                    <option value="client__cedule" {% if f == 'client__cedule' %} selected {% endif %}>DNI</option>
+                </select>
+                <input type="text" name="q" class="form-control" value="{{q}}" placeholder="Search for..." style="width: 50%;">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="submit">Filtrar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th><small>Registro</small></th>
+                <th>Cliente</th>
+                <th><small>DNI Cliente</small></th>
+                <th>Fecha</th>
+                <th><small>Opción</small></th>
+                <!-- <th>Fecha Vencimiento</th> -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in object_list %}
+            <tr>
+                <td scope="row">{% if is_paginated %} {{ page_obj.start_index|add:forloop.counter0 }} {% else %} {{ forloop.counter }} {% endif %}</td>
+                <td>
+                    <a href="{% url 'registry:receipt_detail' d.id %}">
+                        <strong>{{ d.number }}</strong>
+                    </a>
+                </td>
+                <td>{{d.client.last_name | upper}}, {{d.client.first_name}}</td>
+                <td>{{d.client.cedule}}</td>
+                <td><small>{{d.date | date:'d/m/Y'}}</small></td>
+                <td>
+                    <div>
+                        <a class="btn btn-sm btn-primary" href="{% url 'registry:receipt_detail' d.id %}" rel="tooltip" title="Ver detalles">
+                            <span class="fa fa-eye"></span>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="panel-body">
+    {% if is_paginated %} {% load paginator %} {% paginator %} {% else %}
+    <div class="col-md-12">
+        {{ object_list.count }} {% ifequal object_list.count 1 %}{{ opts.verbose_name|capfirst }}{% else %} {{ opts.verbose_name_plural|capfirst }}{% endifequal %}
+    </div>
+    {% endif %}
+</div>
+<hr> {% endblock content %}

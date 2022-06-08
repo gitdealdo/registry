@@ -1,0 +1,34 @@
+{% load i18n %} {% load paginator %}
+<div class="row">
+    <div class="col-md-1" style="margin-bottom: 5px;">
+        <form>
+            <select id="paginate_by" name="paginate_by">
+              <option value="10" {% if paginate_by == '10' %} selected {% endif %}>10</option>
+              <option value="20" {% if paginate_by == '20' %} selected {% endif %}>20</option>
+              <option value="50" {% if paginate_by == '50' %} selected {% endif %}>50</option>
+              <option value="100" {% if paginate_by == '100' %} selected {% endif %}>100</option>
+              <option value="500" {% if paginate_by == '500' %} selected {% endif %}>500</option>
+              <option value="1000" {% if paginate_by == '1000' %} selected {% endif %}>1000</option>
+          </select>
+        </form>
+        <script>
+            $("select#paginate_by").change(function(e) {
+                e.preventDefault();
+                $(this).parents('form').submit();
+            });
+        </script>
+    </div>
+    <div class="col-md-11">
+        <nav aria-label="Page navigation">
+            <ul class="pagination" style="margin:0px">
+                {% for i in page_numbers %} {% paginator_number page_obj i paginate_by f q o %} {% endfor %}
+                <span class="mt-2">&nbsp;&nbsp;
+          {{ page_obj.paginator.count }} {% ifequal page_obj.paginator.count 1 %}{{ opts.verbose_name|capfirst }}{% else %}{{ opts.verbose_name_plural|capfirst }}{% endifequal %}
+          ({% blocktrans with page_obj.number as number count paginator.num_pages as num_pages %}{{number}}/{{num_pages}} page{% plural %}{{number}}/{{num_pages}} pages{% endblocktrans %})
+  
+          {% if show_all_url %}&nbsp;&nbsp;<a href="?f={{f}}&q={{q}}&o={{o}}&all=">{% trans 'Show all' %}</a>{% endif %}
+        </span>
+            </ul>
+        </nav>
+    </div>
+</div>

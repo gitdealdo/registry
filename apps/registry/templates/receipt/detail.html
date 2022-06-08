@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+<!-- breadcrumbs -->
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'registry:receipt_list' %}">Registros</a></li>
+<li class="breadcrumb-item">{{title}}</li>
+{% endblock breadcrumb %}
+<!-- main content -->
+{% block content %}
+<h1>{{opts.verbose_name}} | <small class="text-muted">{{title}}</small></h1>
+
+aqui va el detalle {% endblock content %}

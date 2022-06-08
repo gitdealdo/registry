@@ -1,0 +1,10 @@
+{% extends 'base_layout.html' %} {% load static %}
+<!-- main content -->
+{% block rootcontainer %}
+<div class="text-center" style="margin-top: 10em;">
+    <h5>Terminaste sesión correctamente</h5>
+    <h4>Esperamos verte pronto!</h4>
+    <hr>
+    <a href="{% url 'control:habitacion_list' %}" class="btn btn-primary">Iniciar sesión <i class="fa fa-sign-in"></i></a>
+</div>
+{% endblock %}

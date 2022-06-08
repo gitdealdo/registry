@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+<!-- breadcrumbs -->
+{% block breadcrumb %}
+<li class="breadcrumb-item">Mi perfil</li>
+<li class="breadcrumb-item">{{ user.full_name }}</li>
+{% endblock breadcrumb %}
+<!-- main content -->
+{% block content %}
+<h2>Mi perfil | <small>Mis datos</small></h2>
+<hr>
+<div class=""></div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="text-center text-primary">
+            <i class="fa fa-user fa-5x"></i>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <small>Código</small>
+        <p>{{ user.code }}</p>
+        <small>Nombre de usuario</small>
+        <p>{{ user.username }}</p>
+        <small>Email</small>
+        <p>{{ user.email }}</p>
+        <small>Nombres</small>
+        <p>{{ user.first_name }}</p>
+        <small>Apellidos</small>
+        <p>{{ user.last_name }}</p>
+    </div>
+</div>
+
+
+{% endblock content %}

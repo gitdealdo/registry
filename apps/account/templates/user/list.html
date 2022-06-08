@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+<!-- breadcrumbs -->
+{% block breadcrumb %}
+<li class="breadcrumb-item">Usuarios</li>
+{% endblock breadcrumb %}
+<!-- main content -->
+{% block content %}
+<h2>Usuarios | <small>Lista de usuarios</small></h2>
+<hr>
+<div class=""></div>
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th style="min-width:8rem;">Usuario</th>
+                <th>Código</th>
+                <th>Nombres</th>
+                <th style="min-width:9rem;">Apellidos</th>
+                <th style="min-width:7rem;">Activo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in object_list %}
+            <tr>
+                <td scope="row">{% if is_paginated %} {{ page_obj.start_index|add:forloop.counter0 }} {% else %} {{ forloop.counter }} {% endif %}</td>
+                <td>
+                    <i class="fa fa-user"></i> {{ d.username }}
+                </td>
+                <td>{{ d.code }}</td>
+                <td>{{ d.first_name }}</td>
+                <td>{{ d.last_name }}</td>
+                <td class="text-{{d.is_active|yesno:'success,warning'}}">
+                    <i class="fa {{ d.is_active|yesno:'fa-check,fa-minus' }} fa-lg"></i>
+                    {{d.is_active|yesno:'Si,No'}}
+		</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!--///////// Start Paginator////////////-->
+{% if is_paginated %} {% load paginator %} {% paginator %} {% else %}
+<div class="col-md-12">
+    {{ object_list.count }} {% ifequal object_list.count 1 %}{{ opts.verbose_name|capfirst }}{% else %} {{ opts.verbose_name_plural|capfirst }}{% endifequal %}
+</div>
+{% endif %}
+<!--///////// End Paginator////////////-->
+
+{% endblock content %}

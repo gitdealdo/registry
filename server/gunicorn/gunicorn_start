@@ -1,0 +1,32 @@
+#!/bin/bash
+
+NAME="root"
+DJANGODIR=/home/rolo/djapps/dryft # django app dir
+SOCKFILE=/home/rolo/djconfs/dryft/run/gunicorn.sock # your sock file - do not create it manually
+USER=root
+GROUP=root
+NUM_WORKERS=3 
+DJANGO_SETTINGS_MODULE=config.settings.production
+DJANGO_WSGI_MODULE=config.wsgi  
+echo "Starting $NAME as `whoami`"
+ 
+# Activate the virtual environment
+cd $DJANGODIR
+
+source /home/rolo/djapps/dryft/venv/bin/activate
+export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+export PYTHONPATH=$DJANGODIR:$PYTHONPATH
+ 
+# Create the run directory if it doesn't exist
+RUNDIR=$(dirname $SOCKFILE)
+test -d $RUNDIR || mkdir -p $RUNDIR
+ 
+# Start your Django Gunicorn
+# Programs meant to be run under supervisor should not daemonize themselves (do not use --daemon)
+exec /home/rolo/djapps/dryft/venv/bin/gunicorn ${DJANGO_WSGI_MODULE}:application \
+  --name root \
+  --workers $NUM_WORKERS \
+  --user=$USER --group=$GROUP \
+  --bind=unix:$SOCKFILE \
+  --log-level=debug \
+  --log-file=-

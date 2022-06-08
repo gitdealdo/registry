@@ -1,0 +1,36 @@
+{% extends 'base_layout.html' %} {% load static %}
+<!-- main content -->
+{% block rootcontainer %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-5 col-xs-12 mx-auto my-5">
+            <div class="card shadow bg-light">
+                <div class="card-body px-4">
+                    <h2 class="text-center mt-5 mb-3">Iniciar sesión</h2>
+                    <div class="text-center my-2">
+                        <!-- <img class="img-fluid" src="{% static 'img/logo.png' %}" style="max-width:200px" /> -->
+                        <i class="fa fa-key fa-3x" aria-hidden="true"></i>
+                    </div>
+                    <h5 class="text-center">Administrador</h5>
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %} {{form.as_p}}
+                        <button type="submit" class="btn btn-primary w-100 mt-3 mb-5"><i class="fa fa-key"></i> Ingresar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .errorlist {
+        color: crimson;
+    }
+</style>
+<script>
+    $("button:submit").click(function(e) {
+        $(this).addClass("disabled");
+        $(this).html('<i class="fa fa-circle-o-notch fa-spin"></i> Enviando...');
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base_layout.html' %} {% load static %}
+<!-- extracss -->
+{% block extracss %}{% endblock extracss %}
+<!-- end extracss -->
+<!-- extrajs -->
+{% block extrajs %}
+<script src="{% static 'custom/js/common.js' %}"></script>
+{% endblock extrajs %}
+<!-- main page -->
+{% block rootcontainer %} {% include "partial/header.html" %}
+<nav class="fixed-top" aria-label="breadcrumb" style="top:4.1rem; z-index: 1;">
+    <ol class="breadcrumb p-2">
+        <li class="breadcrumb-item"><a href="/"><i class="fa fa-home"></i> Inicio</a></li>
+        {% block breadcrumb %} {% endblock breadcrumb %}
+    </ol>
+</nav>
+<main class="container mb-5" style="margin-top: 8rem; min-height: 68vh;">
+    {% block messages %} {% load notify %} {% get_notify request %} {% endblock messages %} {% block content %} {% endblock content %}
+</main>
+
+{% include "partial/footer.html" %} {% endblock rootcontainer %}
