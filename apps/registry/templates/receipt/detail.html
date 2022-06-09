@@ -47,11 +47,13 @@
     </table>
 </div>
 
+
 <!-- Button trigger modal -->
 <button type="button" class="btn btn-danger btn-sm js-confirm" data-action="{% url 'registry:receipt_delete' object.pk %}" data-message="Estás seguro de eliminar este registro?. Toda información relacionada a este será eliminada">
     <i class="fa fa-ban" aria-hidden="true"></i> Eliminar comprobante
 </button>
 
+<a class="btn btn-outline-info" href="{% url 'registry:my_report' object.pk %}">Descargar pdf</a>
 
 <!-- confirm-dialog -->
 {% include 'partial/confirm-dialog.html' %}

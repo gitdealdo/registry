@@ -1,5 +1,6 @@
 from django.urls import include, path
 from rest_framework import routers
+from apps.registry.export.receipt import MyReceiptView
 from apps.registry.views.person import PersonSearchView
 
 from apps.registry.views.receipt import ReceiptCreateView, ReceiptDeleteView, ReceiptDetail, ReceiptSaveView, ReciptList
@@ -18,4 +19,6 @@ urlpatterns = [
     path('service/crear', ServiceCreateView.as_view(), name='service_create'),
     path('service/<uuid:pk>/update', ServiceUpdateView.as_view(), name='service_update'),
     path('service/<uuid:pk>/delete', ServiceDeleteView.as_view(), name='service_delete'),
+    
+    path('export/receipt/<uuid:pk>', MyReceiptView.as_view(), name='my_report'),
 ]

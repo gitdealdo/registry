@@ -11,3 +11,4 @@ Pillow==8.0.1
 python-decouple==3.3
 pytz==2020.4
 sqlparse==0.4.1
+reportlab==3.5.44
