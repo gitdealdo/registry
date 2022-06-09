@@ -6,6 +6,54 @@
 {% endblock breadcrumb %}
 <!-- main content -->
 {% block content %}
-<h1>{{opts.verbose_name}} | <small class="text-muted">{{title}}</small></h1>
+<h1>{{opts.verbose_name}} | <small class="text-muted">Nro: {{title}}</small></h1>
 
-aqui va el detalle {% endblock content %}
+<div class="row">
+    <div class="col-md-9">
+        <small>DNI/RUC:</small>
+        <p>{{object.client.cedule}}</p>
+        <small>Contribuyente:</small>
+        <p>
+            {% if object.client.last_name %}
+            <strong>{{object.client.last_name|upper}}</strong> {% endif %} {{object.client.first_name}}
+        </p>
+    </div>
+    <div class="col-md-3">
+        <small>Fecha:</small>
+        <p>{{object.date | date:'d/m/Y'}}</p>
+        <small>Total:</small>
+        <p><strong>S/. {{object.total}}</strong></p>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col" style="width: 1em;">#</th>
+                <th scope="col">Servicios</th>
+                <th scope="col">Costo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in object.details.all %}
+            <tr>
+                <th scope="row">{{forloop.counter}}</th>
+                <td>{{d.service.code}} {{d.service.description}}</td>
+                <td>{{d.cost}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-danger btn-sm js-confirm" data-action="{% url 'registry:receipt_delete' object.pk %}" data-message="Estás seguro de eliminar este registro?. Toda información relacionada a este será eliminada">
+    <i class="fa fa-ban" aria-hidden="true"></i> Eliminar comprobante
+</button>
+
+
+<!-- confirm-dialog -->
+{% include 'partial/confirm-dialog.html' %}
+<!-- endblock content -->
+{% endblock content %}

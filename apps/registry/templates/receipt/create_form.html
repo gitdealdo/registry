@@ -6,31 +6,159 @@
 {% endblock breadcrumb %}
 <!-- main content -->
 {% block content %}
-<h1>{{opts.verbose_name}} | <small class="text-muted">{{title}}</small></h1>
+<h1>Registro | <small class="text-muted">{{title}}</small></h1>
+<style>
+    .error {
+        color: red;
+        font-size: .85em;
+    }
+</style>
 
-aqui va le formulario
+<form name='myForm' method="POST" action="{% url 'registry:receipt_save' %}">
+    {% csrf_token %}
+    <div class="form-row">
+        <div class="form-group col-md-3">
+            <label for="cedule">DNI/RUC*</label>
+            <input type="text" placeholder="Ingrese DNI/RUC" class="form-control" id="cedule" name="cedule" autocomplete="off">
+        </div>
+        <div class="form-group col-md-9">
+            <label for="first_name">Nombres o Razon Social*</label>
+            <input type="text" placeholder="Ingrese Nombres o Razon Social" class="form-control" id="first_name" name="first_name">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="last_name">Apellidos</label>
+        <input type="text" placeholder="Ingrese Apellidos" class="form-control" id="last_name" name="last_name">
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-9">
+            <label for="email">Correo</label>
+            <input type="email" placeholder="Ingrese correo" class="form-control" id="email" name="email">
+        </div>
+        <div class="form-group col-md-3">
+            <label for="cellphone">Celular</label>
+            <input type="text" placeholder="Ingrese celular" class="form-control" id="cellphone" name="cellphone">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="address">Dirección*</label>
+        <input type="text" placeholder="Ingrese dirección" class="form-control" id="address" name="address">
+    </div>
 
+    <div class="form-row">
+        <div class="form-group col-md-3">
+            <label for="date">Fecha*</label>
+            <input type="date" class="form-control" id="date" name="date">
+        </div>
+        <div class="form-group col-md-3">
+            <label for="total">Total*</label>
+            <input type="number" step="any" class="form-control" id="total" value="0" name="total" readonly>
+        </div>
+    </div>
 
-<hr>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col" style="width: 1em;"></th>
+                <th scope="col">Servicios</th>
+                <th scope="col">Costo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in services %}
+            <tr>
+                <th scope="row">
+                    <div class="form-check">
+                        <input class="form-check-input serv" type="checkbox" data-id='{{d.id}}' data-cost='{{d.cost}}'>
+                    </div>
+                </th>
+                <td>{{d.code}} {{d.description}}</td>
+                <td>{{d.cost}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <input type="hidden" name="servs2" id="servs2">
+    <button type="submit" class="btn btn-primary"><i class="fa fa-send" aria-hidden="true"></i> Registrar</button>
+</form>
 
 
 <script>
-    $("select#id_brand").change(function() {
-        const brand = $(this).val();
-        const params = {
-            brand
+    let total = 0;
+    let ids = [];
+    $(".serv").change(function() {
+        const id = $(this).data('id');
+        let checked = $(this).is(':checked')
+        const costo = parseFloat($(this).data('cost'));
+        if (checked) {
+            total += costo
+            ids.push(id);
+        } else {
+            total -= costo
+            const idx = ids.indexOf(id);
+            ids.splice(idx, 1)
         }
-        $.get("{#% url 'car:models_json' %#}", params,
-            function(response, textStatus, jqXHR) {
-                let modelField = $("select#id_model");
-                modelField.html('');
-                $.each(response.results, function(k, item) {
-                    modelField.append(
-                        '<option value="' + item.id + '">' + item.name + '</option>'
-                    );
-                });
-            },
-        );
+        $("input#servs2").val(JSON.stringify(ids))
+        $("input#total").val(total.toFixed(2))
+    })
+
+    $("form[name='myForm']").validate({
+        rules: {
+            cedule: "required",
+            first_name: "required",
+            // email: {
+            //     required: true,
+            //     email: true
+            // },
+            // cellphone: "required",
+            address: "required",
+            date: "required",
+            total: "required",
+        },
+        // Specify validation error messages
+        messages: {
+            cedule: "Por favor ingrese DNI/RUC",
+            first_name: "Por favor ingrese Nombres o Razón social",
+            // email: "Please enter a valid email address",
+            // cellphone: "Please enter your cellphone",
+            date: "Ingrese una fecha por favor",
+            total: "Ingrese el total",
+        },
+        // Make sure the form is submitted to the destination defined
+        // in the "action" attribute of the form when valid
+        submitHandler: function(form) {
+            if (ids.length) {
+                form.submit();
+            } else {
+                alert("Debes seleccionar al menos un servicio")
+            }
+        }
+    });
+
+    $("input#cedule").keyup(function() {
+        const cedule = $(this).val();
+        if (cedule.length > 7 && cedule.length < 12) {
+            const myForm = $("form[name='myForm']")
+            const params = {
+                cedule
+            }
+            $.get("{% url 'registry:person_search' %}", params,
+                function(response, textStatus, jqXHR) {
+                    myForm.find('input#first_name').val('');
+                    myForm.find('input#last_name').val('');
+                    myForm.find('input#email').val('');
+                    myForm.find('input#cellphone').val('');
+                    myForm.find('input#address').val('');
+                    if (response.ok) {
+                        myForm.find('input#first_name').val(response.person.first_name);
+                        myForm.find('input#last_name').val(response.person.last_name);
+                        myForm.find('input#email').val(response.person.email);
+                        myForm.find('input#cellphone').val(response.person.cellphone);
+                        myForm.find('input#address').val(response.person.address);
+                    }
+                },
+            );
+        }
     })
 </script>
 {% endblock content %}

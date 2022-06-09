@@ -5,9 +5,12 @@ from django.db import models
 
 class Person(models.Model):
     """
-    - registry
-    - service
-    - cost: from service cost
+    - first_name
+    - last_name
+    - cedule
+    - email
+    - cellphone
+    - address
     """
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     first_name = models.CharField("Nombres", max_length=40)

@@ -5,19 +5,10 @@
 {% endblock breadcrumb %}
 <!-- main content -->
 {% block content %}
-<div class="row">
-    <div class="col-md-10">
-        <h1>{{opts.verbose_name_plural}} | <small class="text-muted">{{title}}</small></h1>
-    </div>
-    <div class="col-md-2">
-        <a class="btn btn-primary pull-left" style="margin-top: 1.5em;" href="{% url 'registry:receipt_create' %}" title="Nuevo registro">
-            <i class="fa fa-plus" aria-hidden="true"></i> Nuevo
-        </a>
-    </div>
-</div>
+<h1>Registros | <small class="text-muted">{{title}}</small></h1>
 
-<div class="row justify-content-center">
-    <div class="col-md-6 mb-3">
+<div class="row">
+    <div class="col-md-6 offset-md-3 mb-2">
         <form action="">
             <div class="input-group">
                 <select class="custom-select" id="f" name="f">
@@ -32,8 +23,12 @@
             </div>
         </form>
     </div>
+    <div class="col-md-3 mb-2">
+        <a class="btn btn-primary float-right" href="{% url 'registry:receipt_create' %}" rel="tooltip" title="Nuevo registro">
+            <i class="fa fa-plus" aria-hidden="true"></i> Nuevo
+        </a>
+    </div>
 </div>
-
 <div class="table-responsive">
     <table class="table table-hover">
         <thead>
@@ -52,7 +47,7 @@
             <tr>
                 <td scope="row">{% if is_paginated %} {{ page_obj.start_index|add:forloop.counter0 }} {% else %} {{ forloop.counter }} {% endif %}</td>
                 <td>
-                    <a href="{% url 'registry:receipt_detail' d.id %}">
+                    <a href="{% url 'registry:receipt_detail' d.id %}" rel="tooltip" title="Ver detalles">
                         <strong>{{ d.number }}</strong>
                     </a>
                 </td>

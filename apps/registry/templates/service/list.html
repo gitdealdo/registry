@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+<!-- breadcrumbs -->
+{% block breadcrumb %}
+<li class="breadcrumb-item">{{opts.verbose_name_plural}}</li>
+{% endblock breadcrumb %}
+<!-- main content -->
+{% block content %}
+<h1>{{opts.verbose_name_plural}} | <small class="text-muted">{{title}}</small></h1>
+
+<div class="row">
+    <div class="col-md-6 offset-md-3 mb-2"></div>
+    <div class="col-md-3 mb-2">
+        <a class="btn btn-primary float-right" href="{% url 'registry:service_create' %}" rel="tooltip" title="Nuevo servicio">
+            <i class="fa fa-plus" aria-hidden="true"></i> Nuevo
+        </a>
+    </div>
+</div>
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th><small>Código</small></th>
+                <th>Descripción</th>
+                <th>Costo</th>
+                <th>Público</th>
+                <th>Opción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in object_list %}
+            <tr>
+                <td scope="row">{% if is_paginated %} {{ page_obj.start_index|add:forloop.counter0 }} {% else %} {{ forloop.counter }} {% endif %}</td>
+                <td>
+                    <strong>{{ d.code }}</strong>
+                </td>
+                <td>{{d.description}}</td>
+                <td>S/. {{d.cost}}</td>
+                <td>
+                    {% if d.is_public %}
+                    <i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i> {% else %}
+                    <i class="fa fa-square-o fa-lg" aria-hidden="true"></i> {% endif %}
+                </td>
+                <td>
+                    <div>
+                        <a class="btn btn-sm btn-primary" href="{% url 'registry:service_update' d.id %}" rel="tooltip" title="Ver detalles">
+                            <span class="fa fa-edit"></span>
+                        </a>
+                        <button class="btn btn-sm btn-danger js-confirm" data-action="{% url 'registry:service_delete' d.id %}" data-message="¿Estás seguro de eliminar el servicio '{{d.description}}'?." rel="tooltip" title="Eliminar servicio">
+                            <span class="fa fa-ban"></span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="row">
+    {% if is_paginated %} {% load paginator %} {% paginator %} {% else %}
+    <div class="col-md-12">
+        {{ object_list.count }} {% ifequal object_list.count 1 %}{{ opts.verbose_name|capfirst }}{% else %} {{ opts.verbose_name_plural|capfirst }}{% endifequal %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- confirm-dialog -->
+{% include 'partial/confirm-dialog.html' %}
+<!-- endblock content -->
+{% endblock content %}

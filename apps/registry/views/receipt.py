@@ -1,19 +1,16 @@
-from django.conf import settings
-from django.db.models import Count
+import json
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.views import View
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, TemplateView
+from django.views.generic import ListView, DetailView, TemplateView
 from django.urls import reverse, reverse_lazy
-from django.utils.text import capfirst
-from django.utils.encoding import force_bytes, force_text
-from django.utils import timezone
-from datetime import datetime, timedelta
-from apps.registry.forms.receipt import ReceiptModelForm
+from ..models.person import Person
 
 from apps.utils.util import empty
 from ..models.receipt import Receipt
+from ..models.service import Service
+from ..models.detail import Detail
 
 
 class ReciptList(LoginRequiredMixin, ListView):
@@ -63,93 +60,60 @@ class ReceiptDetail(LoginRequiredMixin, DetailView):
 
 
 class ReceiptCreateView(LoginRequiredMixin, TemplateView):
-    model = Receipt
     template_name = 'receipt/create_form.html'
 
     def get_context_data(self, **kwargs):
         context = super(ReceiptCreateView, self).get_context_data(**kwargs)
-        context['opts'] = self.model._meta
-        context['title'] = "Nuevo registro"
+        qs_services = Service.objects.filter(is_public=True)
+        context['title'] = "Nuevo comprobante"
+        context['services'] = qs_services
         return context
 
 
+class ReceiptSaveView(LoginRequiredMixin, View):
+    success_url = reverse_lazy('registry:receipt_list' )
 
-# class CarUpdateView(UpdateView):
-#     model = Car
-#     form_class = CarUpdateForm
-#     template_name = 'car/update_form.html'
-
-#     def get_success_url(self):
-#         return reverse('car:car_detail', kwargs={'pk': self.object.pk})
-
-#     def get_context_data(self, **kwargs):
-#         context = super(CarUpdateView, self).get_context_data(**kwargs)
-#         context['opts'] = self.model._meta
-#         context['title'] = 'Actualizar Carro'
-#         return context
-
-#     def form_valid(self, form):
-#         self.object = form.save(commit=True)
-#         msg = '%(name)s "%(obj)s" fue cambiado satisfactoriamente.' % {
-#             'name': capfirst(force_text(self.model._meta.verbose_name)),
-#             'obj': force_text(self.object)
-#         }
-#         messages.success(self.request, msg)
-#         return super(CarUpdateView, self).form_valid(form)
-
-
-# class CarDeleteView(View):
-#     success_url = reverse_lazy('car:car_list' )
-
-#     def get(self, request, pk, *args, **kwargs):
-#         Car.objects.get(id=pk).delete()
-#         return HttpResponseRedirect(self.success_url)
-
-
-# class CarNewContractView(View):
-
-#     def post(self, request, *args, **kwargs):
-#         from core.models.status import Status
-#         car = Car.objects.get(id=request.POST.get('car'))
-#         print('=>>>', car)
-#         client = self.save_client(request)
-#         aval = self.save_aval(request)
-#         status = Status.objects.get(code_name='contract_active')
-#         contract = Contract(
-#             car=car,
-#             client=client,
-#             aval=aval,
-#             status=status,
-#             weeks=request.POST.get('weeks'),
-#             weekly_amount=request.POST.get('weekly_amount'),
-#             initial_payment_amount=request.POST.get('initial_payment_amount')
-#         )
-#         contract.save()
-#         messages.success(request, 'Contrato registrado correctamente')
-#         # return HttpResponseRedirect(reverse_lazy('car:car_list'))
-#         return HttpResponseRedirect(reverse('car:car_detail', kwargs={'pk': car.id}))
-
-#     def save_client(self, request):
-#         qs = Client.objects.filter(document=request.POST.get('document'))
-#         client = qs[0] if qs.exists() else Client()
-
-#         client.document_type=request.POST.get('document_type')
-#         client.document=request.POST.get('document')
-#         client.first_name=request.POST.get('first_name')
-#         client.last_name=request.POST.get('last_name')
-#         client.email=request.POST.get('email')
-#         client.phone_number=request.POST.get('phone_number')
-#         client.save()
-#         return client
-
-#     def save_aval(self, request):
-#         qs = Aval.objects.filter(document=request.POST.get('aval_document'))
-#         aval = qs[0] if qs.exists() else Aval()
+    def post(self, request, *args, **kwargs):
+        cedule = request.POST.get('cedule')
+        qs = Person.objects.filter(cedule=cedule)
+        person = Person()
+        if qs.exists():
+            person = qs[0]
+        person.cedule = cedule
+        person.first_name = request.POST.get('first_name')
+        person.last_name = request.POST.get('last_name')
+        person.email = request.POST.get('email')
+        person.cellphone = request.POST.get('cellphone')
+        person.address = request.POST.get('address')
+        person.save()
         
-#         aval.document=request.POST.get('aval_document')
-#         aval.first_name=request.POST.get('aval_first_name')
-#         aval.last_name=request.POST.get('aval_last_name')
-#         aval.email=request.POST.get('aval_email')
-#         aval.phone_number=request.POST.get('aval_phone_number')
-#         aval.save()
-#         return aval
+        receipt = Receipt()
+        receipt.number = Receipt.objects.count() + 1
+        receipt.client = person
+        receipt.date = request.POST.get('date')
+        receipt.total = request.POST.get('total')
+        receipt.created_by = request.user.username
+        receipt.save()
+        
+        services = json.loads(request.POST.get('servs2'))
+        qs = Service.objects.filter(id__in=services)
+        details = [Detail(receipt=receipt, service=d, cost=d.cost) for d in qs]
+        services_extra = Service.objects.filter(is_public=False)
+        for d in services_extra:
+            details.append(Detail(receipt=receipt, service=d, cost=d.cost))
+        Detail.objects.bulk_create(details)
+        receipt.total = sum([d.cost for d in details])
+        receipt.save()
+
+        messages.success(self.request, "Comprobante creado correctamente")
+        success_url = reverse('registry:receipt_detail', kwargs={'pk': receipt.pk})
+        return HttpResponseRedirect(success_url)
+
+
+class ReceiptDeleteView(View):
+    success_url = reverse_lazy('registry:receipt_list' )
+
+    def get(self, request, pk, *args, **kwargs):
+        Receipt.objects.get(id=pk).delete()
+        messages.success(request, "Comprobante eliminado correctamente")
+        return HttpResponseRedirect(self.success_url)
