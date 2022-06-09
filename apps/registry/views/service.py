@@ -35,6 +35,10 @@ class ServiceList(LoginRequiredMixin, ListView):
         context = super(ServiceList, self).get_context_data(**kwargs)
         context['opts'] = self.model._meta
         context['title'] = "Seleccione servicio para modificar"
+        context['o'] = self.o
+        context['f'] = self.f
+        context['q'] = self.q
+        context['paginate_by'] = self.paginate_by
         return context
 
 
