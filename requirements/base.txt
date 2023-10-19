@@ -7,7 +7,7 @@ djangorestframework==3.12.2 # remove if only django
 djangorestframework-simplejwt==4.3.0 # remove if only django
 openpyxl==3.0.6
 PyJWT==1.7.1 # remove if only django
-Pillow==8.0.1
+Pillow==9.1.1
 python-decouple==3.3
 pytz==2020.4
 sqlparse==0.4.1
